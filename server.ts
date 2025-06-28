@@ -174,8 +174,13 @@ serve(async (req, connInfo) => {
     }
     return new Response(file, { status: 200, headers });
   } catch {
-    return new Response('Not Found', { status: 404 });
+    // 如果请求的文件不存在，则返回 index.html
+    const defaultPath = join(STATIC_DIR, 'index.html');
+    const defaultFile = await Deno.readFile(defaultPath);
+    const defaultHeaders = new Headers({ 'Content-Type': 'text/html' });
+    return new Response(defaultFile, { status: 200, headers: defaultHeaders });
   }
+
 
 }, { port: PORT });
 
