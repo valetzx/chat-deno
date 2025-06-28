@@ -174,13 +174,17 @@ serve(async (req, connInfo) => {
     }
     return new Response(file, { status: 200, headers });
   } catch {
-    // 如果请求的文件不存在，则返回 index.html
+    // 对于脚本、样式等静态资源，不存在时返回 404
+    const ext = extname(filePath);
+    if (ext === '.js' || ext === '.css' || ext === '.png' || ext === '.jpg' || ext === '.svg') {
+      return new Response('Not Found', { status: 404 });
+    }
+    // 其他路由（SPA 前端路由）返回 index.html
     const defaultPath = join(STATIC_DIR, 'index.html');
-    const defaultFile = await Deno.readFile(defaultPath);
+    const defaultFile = await Deno.readTextFile(defaultPath);
     const defaultHeaders = new Headers({ 'Content-Type': 'text/html' });
     return new Response(defaultFile, { status: 200, headers: defaultHeaders });
   }
-
 
 }, { port: PORT });
 
