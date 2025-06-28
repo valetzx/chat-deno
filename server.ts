@@ -88,6 +88,7 @@ try {
 
 // 服务器配置
 const PORT = Number(Deno.args[0] ?? 8081);
+// 静态资源目录：将静态文件放入 www 目录
 const STATIC_DIR = join(dirname(fromFileUrl(import.meta.url)), 'www');
 
 // 启动服务
@@ -102,9 +103,8 @@ serve(async (req, connInfo) => {
     const segments = url.pathname.split('/').filter(Boolean);
     let [roomId, pwd] = segments;
     if (roomId === 'ws' || !roomId || roomId.length > 32) roomId = null;
-    // 修复：密码校验应排除错误匹配
     if (segments.length > 1 && pwd && roomPwd[roomId!] && roomPwd[roomId!].pwd.toLowerCase() === pwd.toLowerCase()) {
-      // 密码正确，无操作
+      // 密码正确
     } else {
       pwd = null;
     }
@@ -161,25 +161,27 @@ serve(async (req, connInfo) => {
   }
 
   // 静态文件服务
-  let filePath = join(STATIC_DIR, url.pathname === '/' ? 'index.html' : decodeURIComponent(url.pathname.substring(1)));
+  let pathname = new URL(req.url).pathname;
+  if (pathname === "/") pathname = "/index.html";
+  const filePath = join(STATIC_DIR, decodeURIComponent(pathname.substring(1)));
   try {
-    const stat = await Deno.stat(filePath);
-    if (!stat.isFile) throw new Error('Not a file');
+    const file = await Deno.readFile(filePath);
+    const headers = new Headers();
+    const ext = extname(filePath);
+    headers.set('Content-Type', contentType(ext) || 'application/octet-stream');
+    if (ext === '.js' || ext === '.css') {
+      headers.set('Cache-Control', 'public, max-age=2592000');
+    }
+    return new Response(file, { status: 200, headers });
   } catch {
-    filePath = join(STATIC_DIR, 'index.html');
+    return new Response('Not Found', { status: 404 });
   }
-  const headers = new Headers();
-  const ext = extname(filePath);
-  headers.set('Content-Type', contentType(ext) || 'application/octet-stream');
-  if (ext === '.js' || ext === '.css') {
-    headers.set('Cache-Control', 'public, max-age=2592000');
-  }
-  const body = await Deno.readFile(filePath);
-  return new Response(body, { status: 200, headers });
 
 }, { port: PORT });
 
 // 发送工具
 function send(socket: WebSocket, type: string, data: unknown) {
-  socket.send(JSON.stringify({ type, data }));
+  if (socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ type, data }));
+  }
 }
