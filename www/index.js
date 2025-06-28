@@ -75,7 +75,7 @@ function submitRoomPassword() {
 // 连接WebSocket
 function connectWebSocket() {
   const roomId = window.location.pathname.split('/')[1];
-  const wsUrlWithPassword = wsUrl.replace(/\/$/g, '') + '/' + roomId + (roomPassword ? '/' + roomPassword : '');
+  const wsUrlWithPassword = wsUrl.replace(/\/$/g, '') + roomId + (roomPassword ? '/' + roomPassword : '');
   signalingServer = new WebSocket(wsUrlWithPassword);
   
   signalingServer.onopen = () => {
