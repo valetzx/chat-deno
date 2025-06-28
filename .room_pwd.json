@@ -1,0 +1,12 @@
+[
+  {
+    "roomId": "房间号",
+    "pwd": "md5(passwd)",
+    "turns": [{
+      "urls": [ "url" ],
+      "username": "user",
+      "credential": "passwd"
+    }],
+    "remark": "备注"
+  }
+]
