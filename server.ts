@@ -102,7 +102,7 @@ serve(async (req, connInfo) => {
     const segments = url.pathname.split('/').filter(Boolean);
     let [roomId, pwd] = segments;
     if (roomId === 'ws' || !roomId || roomId.length > 32) roomId = null;
-    if (segments.length > 1 && (!pwd || !roomPwd[roomId!]?\.pwd.toLowerCase() === pwd.toLowerCase())) pwd = null;
+    if (segments.length > 1 && (!pwd || roomPwd[roomId!]?.pwd.toLowerCase() !== pwd.toLowerCase())) pwd = null;
     const turns = roomId && roomPwd[roomId]?.turns;
     const nickname = getCookieValue(req.headers.get('cookie'));
     const currentId = registerUser(ip, roomId, socket, nickname);
