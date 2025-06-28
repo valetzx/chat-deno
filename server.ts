@@ -102,7 +102,12 @@ serve(async (req, connInfo) => {
     const segments = url.pathname.split('/').filter(Boolean);
     let [roomId, pwd] = segments;
     if (roomId === 'ws' || !roomId || roomId.length > 32) roomId = null;
-    if (segments.length > 1 && (!pwd || roomPwd[roomId!]?.pwd.toLowerCase() !== pwd.toLowerCase())) pwd = null;
+    // 修复：密码校验应排除错误匹配
+    if (segments.length > 1 && pwd && roomPwd[roomId!] && roomPwd[roomId!].pwd.toLowerCase() === pwd.toLowerCase()) {
+      // 密码正确，无操作
+    } else {
+      pwd = null;
+    }
     const turns = roomId && roomPwd[roomId]?.turns;
     const nickname = getCookieValue(req.headers.get('cookie'));
     const currentId = registerUser(ip, roomId, socket, nickname);
