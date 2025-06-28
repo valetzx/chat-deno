@@ -1,5 +1,5 @@
 const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const wsUrl = `${wsProtocol}://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/ws`;
+const wsUrl = `${wsProtocol}://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
 
 var users = [];
 var me = new XChatUser();
