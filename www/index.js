@@ -1,5 +1,5 @@
 const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const wsUrl = `${wsProtocol}://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}/ws`;
+const wsUrl = `${wsProtocol}://${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
 
 var users = [];
 var me = new XChatUser();
@@ -75,7 +75,7 @@ function submitRoomPassword() {
 // 连接WebSocket
 function connectWebSocket() {
   const roomId = window.location.pathname.split('/')[1];
-  const wsUrlWithPassword = wsUrl.replace(/\/$/g, '') + roomId + (roomPassword ? '/' + roomPassword : '');
+  const wsUrlWithPassword = wsUrl.replace(/\/$/g, '') + '/' + roomId + (roomPassword ? '/' + roomPassword : '');
   signalingServer = new WebSocket(wsUrlWithPassword);
   
   signalingServer.onopen = () => {
